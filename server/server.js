@@ -14,12 +14,12 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 const db = require("./models")
 const Role = db.role
-// db.sequelize.sync()
+db.sequelize.sync()
 // For development: drop existing tables and re-sync database.
-db.sequelize.sync({ force: true }).then(() => {
-    console.log("Drop and re-sync db.")
-    initial();
-});
+// db.sequelize.sync({ force: true }).then(() => {
+//     console.log("Drop and re-sync db.")
+//     initial();
+// });
 
 function initial(){
     Role.create({
@@ -43,6 +43,8 @@ app.get('/', (req, res) => {
 })
 
 require('./routes/tutorial.routes')(app)
+require("./routes/auth.routes")(app)
+require("./routes/user.routes")(app)
 
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => {

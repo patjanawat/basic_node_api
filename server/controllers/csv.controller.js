@@ -3,8 +3,9 @@ const Tutorial = db.Tutorial
 
 const fs = require("fs")
 const csv = require("fast-csv")
-
 const path = require("path")
+
+const CsvParser = require("json2csv").Parser
 
 const upload = async (req,res)=>{
     try {
@@ -61,7 +62,32 @@ const getTutorials = (req,res) =>{
         })
 }
 
+const download = (req,res) => {
+    Tutorial.findAll()
+        .then(rows=>{
+            let tutorial = []
+
+            rows.forEach((row)=>{
+                const {id, title, description, published} = row;
+                tutorial.push({id,title,description,published})                
+            })
+
+            const csvFields = ["Id","Title","Description","Published"]
+            const csvParser = new CsvParser({csvFields})
+            const csvData = csvParser.parse(tutorial)
+
+            res.setHeader("Content-Type","text/csv")
+            res.setHeader("Content-Disposition","attachment; filename=tutorials.csv")
+
+            res.status(200).end(csvData)
+        })
+        .catch(err=>{
+            res.status(500).send({message:err.message || "Error occure when trying to download tutorials"})
+        })
+}
+
 module.exports = {
     upload,
-    getTutorials
+    getTutorials,
+    download
 }
